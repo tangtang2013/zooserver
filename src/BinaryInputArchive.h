@@ -127,8 +127,9 @@ public:
 		{
 		}
 	}
-	void readString(string& out,  int size){
-		out.append(in + index->getIndex(), size);
+	void readString(char* out,  int size){
+		memcpy(out, in + index->getIndex(), size);
+		//out.append(in + index->getIndex(), size);
 		index->incr(size);
 	}
 protected:
