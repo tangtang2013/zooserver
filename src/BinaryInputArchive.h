@@ -1,7 +1,7 @@
 #ifndef _BINARYINPUTARCHIVE_H_
 #define _BINARYINPUTARCHIVE_H_
 
-#include "coding.h"
+#include <stdint.h>
 #include "InputArchive.h"
 
 class BinaryInputArchive// : public InputArchive

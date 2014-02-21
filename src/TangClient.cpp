@@ -44,8 +44,41 @@ int TangClient::init(){
 }
 
 void TangClient::cmdHandler(){
-	PutRequestMessage* msg = new PutRequestMessage();
 	send(clientfd, "hello world", 11, 0);
+	//dynamic_cast
+
+	Message* msg= NULL;
+	int32_t magicid = 0;
+	MessageType type;
+	
+	//获取Message Type
+	memcpy(&type, buf, sizeof(MessageType));
+
+	//检查magicid是否匹配
+	memcpy(&magicid, buf  + sizeof(MessageType), sizeof(int32_t));
+	if(magicid != MAGIC_ID){
+		return ;
+	}
+	
+	switch(type){
+	case PUTREQUESTMSG:
+		msg = new PutRequestMessage(buf, bufpos);
+		break;
+	case PUTREPLYMSG:
+		msg = new PutReplyMessage(buf, bufpos);
+		break;
+	case GETREQUESTMSG:
+		msg = new GetRequestMessage(buf, bufpos);
+		break;
+	case GETREPLYMSG:
+		msg = new GetReplyMessage(buf, bufpos);
+		break;
+	default:
+		printf("Message Type Error : %d\n",type);
+		break;
+	}
+
+	msg->deserialize();
 }
 
 int TangClient::getSocketFd(){
@@ -92,6 +125,6 @@ void TangClient::readFileProc(struct aeEventLoop *eventLoop, int sfd, void *clie
 
 	//win平台必须要这句话，否则会后续的read事件会监听异常
 	aeWinReceiveDone(sfd);
-
+	tangClient->bufpos = nread;
 	tangClient->cmdHandler();
 }
