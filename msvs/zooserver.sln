@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zooserver", "zooserver.vcxproj", "{19691D4E-127A-48C6-8274-44DFD160175F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zooclient", "zooclient\zooclient.vcxproj", "{48F7DA1E-55C9-4C43-8C3D-7AFEAA81473A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{19691D4E-127A-48C6-8274-44DFD160175F}.Debug|Win32.Build.0 = Debug|Win32
 		{19691D4E-127A-48C6-8274-44DFD160175F}.Release|Win32.ActiveCfg = Release|Win32
 		{19691D4E-127A-48C6-8274-44DFD160175F}.Release|Win32.Build.0 = Release|Win32
+		{48F7DA1E-55C9-4C43-8C3D-7AFEAA81473A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{48F7DA1E-55C9-4C43-8C3D-7AFEAA81473A}.Debug|Win32.Build.0 = Debug|Win32
+		{48F7DA1E-55C9-4C43-8C3D-7AFEAA81473A}.Release|Win32.ActiveCfg = Release|Win32
+		{48F7DA1E-55C9-4C43-8C3D-7AFEAA81473A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
