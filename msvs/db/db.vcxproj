@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{19691D4E-127A-48C6-8274-44DFD160175F}</ProjectGuid>
+    <ProjectGuid>{5DC79EF2-E8F6-4599-94C6-513017C51FA3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>zooserver</RootNamespace>
+    <RootNamespace>db</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -50,13 +50,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\deps\pthreads-win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\deps\pthreads-win32\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;pthreadVC2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -77,51 +74,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\net\ae.c" />
-    <ClCompile Include="..\net\anet.c" />
-    <ClCompile Include="..\net\win32fixes.c" />
-    <ClCompile Include="..\net\win32_wsiocp.c" />
-    <ClCompile Include="..\net\zmalloc.c" />
-    <ClCompile Include="..\src\BinaryOutputArchive.cpp" />
-    <ClCompile Include="..\src\coding.cpp" />
-    <ClCompile Include="..\src\DateNode.cpp" />
-    <ClCompile Include="..\src\DateTree.cpp" />
-    <ClCompile Include="..\src\Dict.cpp" />
-    <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\Message.cpp" />
-    <ClCompile Include="..\src\PathTrie.cpp" />
-    <ClCompile Include="..\src\StatPersisted.cpp" />
-    <ClCompile Include="..\src\TangClient.cpp" />
-    <ClCompile Include="..\src\TangServer.cpp" />
-    <ClCompile Include="..\src\TrieNode.cpp" />
+    <ClInclude Include="..\..\src\Dict.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\net\ae.h" />
-    <ClInclude Include="..\net\anet.h" />
-    <ClInclude Include="..\net\fmacros.h" />
-    <ClInclude Include="..\net\win32fixes.h" />
-    <ClInclude Include="..\net\win32_wsiocp.h" />
-    <ClInclude Include="..\net\zmalloc.h" />
-    <ClInclude Include="..\src\BinaryInputArchive.h" />
-    <ClInclude Include="..\src\BinaryOutputArchive.h" />
-    <ClInclude Include="..\src\coding.h" />
-    <ClInclude Include="..\src\DateNode.h" />
-    <ClInclude Include="..\src\DateTree.h" />
-    <ClInclude Include="..\src\Dict.h" />
-    <ClInclude Include="..\src\InputArchive.h" />
-    <ClInclude Include="..\src\Message.h" />
-    <ClInclude Include="..\src\OutputArchive.h" />
-    <ClInclude Include="..\src\PathTrie.h" />
-    <ClInclude Include="..\src\Quotas.h" />
-    <ClInclude Include="..\src\Record.h" />
-    <ClInclude Include="..\src\slice.h" />
-    <ClInclude Include="..\src\StatPersisted.h" />
-    <ClInclude Include="..\src\TangClient.h" />
-    <ClInclude Include="..\src\TangServer.h" />
-    <ClInclude Include="..\src\TrieNode.h" />
-    <ClInclude Include="..\src\Watcher.h" />
-    <ClInclude Include="..\src\WatcherEvent.h" />
-    <ClInclude Include="..\src\WatchManager.h" />
+    <ClCompile Include="..\..\src\dbtest.cpp" />
+    <ClCompile Include="..\..\src\Dict.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
