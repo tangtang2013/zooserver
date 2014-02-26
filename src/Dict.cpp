@@ -391,7 +391,7 @@ int dictht::dictClear()
 }
 
 /* Clear & Release the hash table */
-void dict::dictRelease(dict *d)
+void dict::dictRelease()
 {
 	ht[0].dictClear();
 	ht[1].dictClear();

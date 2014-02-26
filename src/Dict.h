@@ -130,42 +130,156 @@ class dict {
 public:
 	dict();
 	~dict();
-	/* API */
+	/*
+	 * 扩张或者创建hashtable
+	 * @param [in] size
+	 * @return 返回执行结果，DICT_ERR表示失败，DICT_OK表示成功
+	 */
 	int dictExpand(unsigned long size);
 
+	/*
+	 * 往dict中add数据（key-value）
+	 * @param [in] key
+	 * @param [in] value
+	 * @return 返回执行结果，DICT_ERR表示失败，DICT_OK表示成功
+	 */
 	int dictAdd(void *key, void *val);
+	
+	/*
+	 * 往dict中add数据（key）
+	 * @param [in] key
+	 * @return 返回Raw，NULL表示key存在,非NULL表示不存在
+	 */
 	dictEntry *dictAddRaw(void *key);
+
+	/*
+	 * 往dict中替换key对应的value数据
+	 * @param [in] key
+	 * @param [in] value
+	 * @return 返回执行结果，永远返回DICT_OK，DICT_OK表示成功
+	 */
 	int dictReplace(void *key, void *val);
+
+	/*
+	 * 往dict中替换key
+	 * @param [in] key
+	 * @return 返回Raw,永远不为NULL
+	 */
 	dictEntry *dictReplaceRaw(void *key);
+
+	/*
+	 * 往dict中删除key对应的entry,并且释放entry内存
+	 * @param [in] key
+	 * @return 返回执行结果，DICT_ERR表示失败，DICT_OK表示成功
+	 */
 	int dictDelete(const void *key);
+
+	/*
+	 * 往dict中删除key对应的entry，不释放entry内存
+	 * @param [in] key
+	 * @return 返回执行结果，DICT_ERR表示失败，DICT_OK表示成功
+	 */
 	int dictDeleteNoFree(const void *key);
-	void dictRelease(dict *d);
+
+	/*
+	 * release dict
+	 */
+	void dictRelease();
+
+	/*
+	 * 查找key对应的Entry
+	 * @param [in] key
+	 * @return 成功返回查找到的Entry，找不到为NULL
+	 */
 	dictEntry * dictFind(const void *key);
+
+	/*
+	 * 获取key对应的value
+	 * @param [in] key
+	 * @return 成功返回查找到的value，找不到为NULL
+	 */
 	void *dictFetchValue(const void *key);
 
+	/*
+	 * 重新调整hashtable的大小
+	 * @param [in] key
+	 * @return 返回执行结果，DICT_ERR表示失败，DICT_OK表示成功
+	 */
 	int dictResize();
+
+	/*
+	 * 获取Iterator
+	 * @return 返回Iterator迭代器指针
+	 */
 	dictIterator *dictGetIterator();
+
+	/*
+	 * 获取安全的Iterator
+	 * @return 返回Iterator迭代器指针
+	 */
 	dictIterator *dictGetSafeIterator();
-	dictEntry *dictNext(dictIterator *iter);
-	void dictReleaseIterator(dictIterator *iter);
+	
+	/*
+	 * 获取dict中随机一个Entry
+	 * @return 返回Entry指针
+	 */
 	dictEntry *dictGetRandomKey();
 	
 	void dictPrintStats(dict *d);
 	unsigned int dictGenHashFunction(const void *key, int len);
 	unsigned int dictGenCaseHashFunction(const unsigned char *buf, int len);
-	void dictEmpty();
-	void dictEnableResize(void);
-	void dictDisableResize(void);
-	int dictRehash(int n);
-	int dictRehashMilliseconds(int ms);
-	void dictSetHashFunctionSeed(unsigned int initval);
-	unsigned int dictGetHashFunctionSeed(void);
 
-	//---
+	/*
+	 * 清空dict中的数据
+	 */
+	void dictEmpty();
+
+	/*
+	 * 打开Resize功能
+	 */
+	void dictEnableResize(void);
+
+	/*
+	 * 关闭Resize功能
+	 */
+	void dictDisableResize(void);
+
+	/*
+	 * 执行rehash，扩张之后，每一次操作rehash移动hashtable的一个bucket
+	 * @param [in] 执行的步骤数
+	 */
+	int dictRehash(int n);
+
+	/*
+	 * 执行rehash，超过ms时间就结束
+	 * @param [in] ms 执行的时间
+	 * @return 返回执行的步数
+	 */
+	int dictRehashMilliseconds(int ms);
+
+	/*
+	 * 获取key的hash值
+	 * @param [in] key
+	 * @return 返回key的hash值
+	 */
 	unsigned int dictHashKey(const void *key);
 
+	/*
+	 * 获取slots数量
+	 * @return 返回slot数量
+	 */
 	unsigned int dictSlots(){return (ht[0].size+ht[1].size);}
+
+	/*
+	 * 获取entry数量
+	 * @return 返回entry数量
+	 */
 	unsigned int dictSize(){return (ht[0].used+ht[1].used);}
+
+	/*
+	 * 判断是否在进行rehash
+	 * @return 返回1或0,0表示没在rehash，1表示正在rehash
+	 */
 	int dictIsRehashing(){return (rehashidx != -1);}
 
 private:
@@ -180,7 +294,7 @@ private:
 private:
 	dictType *type;
 	void *privdata;
-	dictht ht[2];
+	dictht ht[2];	//hashtable，方便expand
 	int rehashidx; /* rehashing not in progress if rehashidx == -1 */
 	int iterators; /* number of iterators currently running */
 };
