@@ -46,7 +46,7 @@
 /* Unused arguments generate annoying warnings... */
 #define DICT_NOTUSED(V) ((void) V)
 
-typedef struct dictEntry {
+typedef struct DictEntry {
 	/*
 	 * 设置key
 	 * @param [in] key指针
@@ -100,8 +100,8 @@ typedef struct dictEntry {
 		uint64_t u64;
 		int64_t s64;
 	} v;
-	struct dictEntry *next;
-} dictEntry;
+	struct DictEntry *next;
+} DictEntry;
 
 typedef struct dictType {
 	unsigned int (*hashFunction)(const void *key);
@@ -114,22 +114,22 @@ typedef struct dictType {
 
 /* This is our hash table structure. Every dictionary has two of this as we
 * implement incremental rehashing, for the old to the new table. */
-typedef struct dictht {
+typedef struct Dictht {
 	void dictReset();
 	int dictClear();
-	dictEntry **table;
+	DictEntry **table;
 	unsigned long size;
 	unsigned long sizemask;
 	unsigned long used;
-} dictht;
+} Dictht;
 
 class dictIterator;
 
-class dict {
-	friend class dictIterator;
+class Dict {
+	friend class DictIterator;
 public:
-	dict();
-	~dict();
+	Dict();
+	~Dict();
 	/*
 	 * 扩张或者创建hashtable
 	 * @param [in] size
@@ -150,7 +150,7 @@ public:
 	 * @param [in] key
 	 * @return 返回Raw，NULL表示key存在,非NULL表示不存在
 	 */
-	dictEntry *dictAddRaw(void *key);
+	DictEntry *dictAddRaw(void *key);
 
 	/*
 	 * 往dict中替换key对应的value数据
@@ -165,7 +165,7 @@ public:
 	 * @param [in] key
 	 * @return 返回Raw,永远不为NULL
 	 */
-	dictEntry *dictReplaceRaw(void *key);
+	DictEntry *dictReplaceRaw(void *key);
 
 	/*
 	 * 往dict中删除key对应的entry,并且释放entry内存
@@ -191,7 +191,7 @@ public:
 	 * @param [in] key
 	 * @return 成功返回查找到的Entry，找不到为NULL
 	 */
-	dictEntry * dictFind(const void *key);
+	DictEntry * dictFind(const void *key);
 
 	/*
 	 * 获取key对应的value
@@ -211,21 +211,21 @@ public:
 	 * 获取Iterator
 	 * @return 返回Iterator迭代器指针
 	 */
-	dictIterator *dictGetIterator();
+	DictIterator *dictGetIterator();
 
 	/*
 	 * 获取安全的Iterator
 	 * @return 返回Iterator迭代器指针
 	 */
-	dictIterator *dictGetSafeIterator();
+	DictIterator *dictGetSafeIterator();
 	
 	/*
 	 * 获取dict中随机一个Entry
 	 * @return 返回Entry指针
 	 */
-	dictEntry *dictGetRandomKey();
+	DictEntry *dictGetRandomKey();
 	
-	void dictPrintStats(dict *d);
+	void dictPrintStats();
 	unsigned int dictGenHashFunction(const void *key, int len);
 	unsigned int dictGenCaseHashFunction(const unsigned char *buf, int len);
 
@@ -283,18 +283,18 @@ public:
 	int dictIsRehashing(){return (rehashidx != -1);}
 
 private:
-	int dictExpandIfNeeded(dict *ht);
+	int dictExpandIfNeeded();
 	unsigned long dictNextPower(unsigned long size);
 	int dictKeyIndex(const void *key);
 	int dictInit();
 	void dictRehashStep();
 	int dictGenericDelete(const void *key, int nofree);
-	int dictExpandIfNeeded();
+//	int dictExpandIfNeeded();
 
 private:
 	dictType *type;
 	void *privdata;
-	dictht ht[2];	//hashtable，方便expand
+	Dictht ht[2];	//hashtable，方便expand
 	int rehashidx; /* rehashing not in progress if rehashidx == -1 */
 	int iterators; /* number of iterators currently running */
 };
@@ -303,26 +303,26 @@ private:
 * dictAdd, dictFind, and other functions against the dictionary even while
 * iterating. Otherwise it is a non safe iterator, and only dictNext()
 * should be called while iterating. */
-class dictIterator {
-	friend class dict;
+class DictIterator {
+	friend class Dict;
 public:
 	/*
 	 * 获取下一个entry
 	 * @return 一个entry，如果Iterator遍历结束返回NULL
 	 */
-	dictEntry* dictNext();
+	DictEntry* dictNext();
 
 	/*
 	 * 释放Iterator
 	 */
 	void dictRelease();
 private:
-	dict *d;	//需要遍历的dict
+	Dict *d;	//需要遍历的dict
 	int table;	//table ID
 	int index;	//哈希表上的index
 	int safe;	//安全标准
-	dictEntry *entry;
-	dictEntry *nextEntry;
+	DictEntry *entry;
+	DictEntry *nextEntry;
 };
 
 /* This is the initial size of every hash table */

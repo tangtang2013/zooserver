@@ -25,7 +25,7 @@ static uint32_t dict_hash_function_seed = 5381;
 * 2. It will not produce the same results on little-endian and big-endian
 *    machines.
 */
-unsigned int dict::dictGenHashFunction(const void *key, int len) {
+unsigned int Dict::dictGenHashFunction(const void *key, int len) {
 	/* 'm' and 'r' are mixing constants generated offline.
 	They're not really 'magic', they just happen to work well.  */
 	uint32_t seed = dict_hash_function_seed;
@@ -73,7 +73,7 @@ unsigned int dict::dictGenHashFunction(const void *key, int len) {
 
 /* Reset a hash table already initialized with ht_init().
 * NOTE: This function should only be called by ht_destroy(). */
-void dictht::dictReset()
+void Dictht::dictReset()
 {
 	table = NULL;
 	size = 0;
@@ -82,7 +82,7 @@ void dictht::dictReset()
 }
 
 /* Create a new hash table */
-dict::dict()
+Dict::Dict()
 {
 	//dict *d = malloc(sizeof(*d));
 
@@ -92,7 +92,7 @@ dict::dict()
 }
 
 /* Initialize the hash table */
-int dict::dictInit()
+int Dict::dictInit()
 {
 	ht[0].dictReset();
 	ht[1].dictReset();
@@ -105,7 +105,7 @@ int dict::dictInit()
 
 /* Resize the table to the minimal size that contains all the elements,
 * but with the invariant of a USED/BUCKETS ratio near to <= 1 */
-int dict::dictResize()
+int Dict::dictResize()
 {
 	int minimal;
 
@@ -116,14 +116,14 @@ int dict::dictResize()
 	return dictExpand(minimal);
 }
 
-unsigned int dict::dictHashKey(const void *key){
+unsigned int Dict::dictHashKey(const void *key){
 	return dictGenHashFunction(key, strlen((const char*)key));
 }
 
 /* Expand or create the hash table */
-int dict::dictExpand(unsigned long size)
+int Dict::dictExpand(unsigned long size)
 {
-	dictht n; /* the new hash table */
+	Dictht n; /* the new hash table */
 	unsigned long realsize = dictNextPower(size);
 
 	/* the size is invalid if it is smaller than the number of
@@ -134,7 +134,7 @@ int dict::dictExpand(unsigned long size)
 	/* Allocate the new hash table and initialize all pointers to NULL */
 	n.size = realsize;
 	n.sizemask = realsize-1;
-	n.table = (dictEntry**)calloc(realsize,sizeof(dictEntry*));
+	n.table = (DictEntry**)calloc(realsize,sizeof(DictEntry*));
 	n.used = 0;
 
 	/* Is this the first initialization? If so it's not really a rehashing
@@ -154,11 +154,11 @@ int dict::dictExpand(unsigned long size)
 * keys to move from the old to the new hash table, otherwise 0 is returned.
 * Note that a rehashing step consists in moving a bucket (that may have more
 * thank one key as we use chaining) from the old to the new hash table. */
-int dict::dictRehash(int n) {
+int Dict::dictRehash(int n) {
 	if (!dictIsRehashing()) return 0;
 
 	while(n--) {
-		dictEntry *de, *nextde;
+		DictEntry *de, *nextde;
 
 		/* Check if we already rehashed the whole table... */
 		if (ht[0].used == 0) {
@@ -205,7 +205,7 @@ long long timeInMilliseconds(void) {
 }
 
 /* Rehash for an amount of time between ms milliseconds and ms+1 milliseconds */
-int dict::dictRehashMilliseconds(int ms) {
+int Dict::dictRehashMilliseconds(int ms) {
 	long long start = timeInMilliseconds();
 	int rehashes = 0;
 
@@ -224,14 +224,14 @@ int dict::dictRehashMilliseconds(int ms) {
 * This function is called by common lookup or update operations in the
 * dictionary so that the hash table automatically migrates from H1 to H2
 * while it is actively used. */
-void dict::dictRehashStep() {
+void Dict::dictRehashStep() {
 	if (iterators == 0) dictRehash(1);
 }
 
 /* Add an element to the target hash table */
-int dict::dictAdd(void *key, void *val)
+int Dict::dictAdd(void *key, void *val)
 {
-	dictEntry *entry = dictAddRaw(key);
+	DictEntry *entry = dictAddRaw(key);
 
 	if (!entry) return DICT_ERR;
 	//dictSetVal(d, entry, val);
@@ -254,11 +254,11 @@ int dict::dictAdd(void *key, void *val)
 * If key already exists NULL is returned.
 * If key was added, the hash entry is returned to be manipulated by the caller.
 */
-dictEntry *dict::dictAddRaw(void *key)
+DictEntry *Dict::dictAddRaw(void *key)
 {
 	int index;
-	dictEntry *entry;
-	dictht *dht = NULL;
+	DictEntry *entry;
+	Dictht *dht = NULL;
 
 	if (dictIsRehashing()) dictRehashStep();
 
@@ -269,7 +269,7 @@ dictEntry *dict::dictAddRaw(void *key)
 
 	/* Allocate the memory and store the new entry */
 	dht = dictIsRehashing() ? &ht[1] : &ht[0];
-	entry = (dictEntry*)malloc(sizeof(*entry));
+	entry = (DictEntry*)malloc(sizeof(*entry));
 	entry->next = dht->table[index];
 	dht->table[index] = entry;
 	dht->used++;
@@ -284,9 +284,9 @@ dictEntry *dict::dictAddRaw(void *key)
 * Return 1 if the key was added from scratch, 0 if there was already an
 * element with such key and dictReplace() just performed a value update
 * operation. */
-int dict::dictReplace(void *key, void *val)
+int Dict::dictReplace(void *key, void *val)
 {
-	dictEntry *entry, auxentry;
+	DictEntry *entry, auxentry;
 
 	/* Try to add the element. If the key
 	* does not exists dictAdd will suceed. */
@@ -312,17 +312,17 @@ int dict::dictReplace(void *key, void *val)
 * existing key is returned.)
 *
 * See dictAddRaw() for more information. */
-dictEntry *dict::dictReplaceRaw(void *key) {
-	dictEntry *entry = dictFind(key);
+DictEntry *Dict::dictReplaceRaw(void *key) {
+	DictEntry *entry = dictFind(key);
 
 	return entry ? entry : dictAddRaw(key);
 }
 
 /* Search and remove an element */
-int dict::dictGenericDelete(const void *key, int nofree)
+int Dict::dictGenericDelete(const void *key, int nofree)
 {
 	unsigned int h, idx;
-	dictEntry *he, *prevHe;
+	DictEntry *he, *prevHe;
 	int table;
 
 	if (ht[0].size == 0) return DICT_ERR; /* d->ht[0].table is NULL */
@@ -356,22 +356,22 @@ int dict::dictGenericDelete(const void *key, int nofree)
 	return DICT_ERR; /* not found */
 }
 
-int dict::dictDelete(const void *key) {
+int Dict::dictDelete(const void *key) {
 	return dictGenericDelete(key,0);
 }
 
-int dict::dictDeleteNoFree(const void *key) {
+int Dict::dictDeleteNoFree(const void *key) {
 	return dictGenericDelete(key,1);
 }
 
 /* Destroy an entire dictionary */
-int dictht::dictClear()
+int Dictht::dictClear()
 {
 	unsigned long i;
 
 	/* Free all the elements */
 	for (i = 0; i < size && used > 0; i++) {
-		dictEntry *he, *nextHe;
+		DictEntry *he, *nextHe;
 
 		if ((he = table[i]) == NULL) continue;
 		while(he) {
@@ -391,15 +391,15 @@ int dictht::dictClear()
 }
 
 /* Clear & Release the hash table */
-void dict::dictRelease()
+void Dict::dictRelease()
 {
 	ht[0].dictClear();
 	ht[1].dictClear();
 }
 
-dictEntry *dict::dictFind(const void *key)
+DictEntry *Dict::dictFind(const void *key)
 {
-	dictEntry *he;
+	DictEntry *he;
 	unsigned int h, idx, table;
 
 	if (ht[0].size == 0) return NULL; /* We don't have a table at all */
@@ -418,16 +418,16 @@ dictEntry *dict::dictFind(const void *key)
 	return NULL;
 }
 
-void *dict::dictFetchValue(const void *key) {
-	dictEntry *he;
+void *Dict::dictFetchValue(const void *key) {
+	DictEntry *he;
 
 	he = dictFind(key);
 	return he ? he->dictGetVal() : NULL;
 }
 
-dictIterator *dict::dictGetIterator()
+DictIterator *Dict::dictGetIterator()
 {
-	dictIterator *iter = new dictIterator();
+	DictIterator *iter = new DictIterator();
 
 	iter->d = this;
 	iter->table = 0;
@@ -438,18 +438,18 @@ dictIterator *dict::dictGetIterator()
 	return iter;
 }
 
-dictIterator *dict::dictGetSafeIterator() {
-	dictIterator *i = dictGetIterator();
+DictIterator *Dict::dictGetSafeIterator() {
+	DictIterator *i = dictGetIterator();
 
 	i->safe = 1;
 	return i;
 }
 
-dictEntry *dictIterator::dictNext()
+DictEntry *DictIterator::dictNext()
 {
 	while (1) {
 		if (entry == NULL) {
-			dictht *ht = &d->ht[table];
+			Dictht *ht = &d->ht[table];
 			if (safe && index == -1 && table == 0)
 				d->iterators++;
 			index++;
@@ -476,7 +476,7 @@ dictEntry *dictIterator::dictNext()
 	return NULL;
 }
 
-void dictIterator::dictRelease()
+void DictIterator::dictRelease()
 {
 	if (safe && !(index == -1 && table == 0))
 		d->iterators--;
@@ -489,9 +489,9 @@ int random(){
 
 /* Return a random entry from the hash table. Useful to
 * implement randomized algorithms */
-dictEntry *dict::dictGetRandomKey()
+DictEntry *Dict::dictGetRandomKey()
 {
-	dictEntry *he, *orighe;
+	DictEntry *he, *orighe;
 	unsigned int h;
 	int listlen, listele;
 
@@ -529,7 +529,7 @@ dictEntry *dict::dictGetRandomKey()
 /* ------------------------- private functions ------------------------------ */
 
 /* Expand the hash table if needed */
-int dict::dictExpandIfNeeded()
+int Dict::dictExpandIfNeeded()
 {
 	/* Incremental rehashing already in progress. Return. */
 	if (dictIsRehashing()) return DICT_OK;
@@ -552,7 +552,7 @@ int dict::dictExpandIfNeeded()
 }
 
 /* Our hash table capability is a power of two */
-unsigned long dict::dictNextPower(unsigned long size)
+unsigned long Dict::dictNextPower(unsigned long size)
 {
 	unsigned long i = DICT_HT_INITIAL_SIZE;
 
@@ -570,10 +570,10 @@ unsigned long dict::dictNextPower(unsigned long size)
 *
 * Note that if we are in the process of rehashing the hash table, the
 * index is always returned in the context of the second (new) hash table. */
-int dict::dictKeyIndex(const void *key)
+int Dict::dictKeyIndex(const void *key)
 {
 	unsigned int h, idx, table;
-	dictEntry *he;
+	DictEntry *he;
 
 	/* Expand the hash table if needed */
 	if (dictExpandIfNeeded() == DICT_ERR)
@@ -594,26 +594,26 @@ int dict::dictKeyIndex(const void *key)
 	return idx;
 }
 
-void dict::dictEmpty() {
+void Dict::dictEmpty() {
 	ht[0].dictClear();
 	ht[1].dictClear();
 	rehashidx = -1;
 	iterators = 0;
 }
 
-void dict::dictEnableResize() {
+void Dict::dictEnableResize() {
 	dict_can_resize = 1;
 }
 
-void dict::dictDisableResize() {
+void Dict::dictDisableResize() {
 	dict_can_resize = 0;
 }
 
-void dictEntry::dictSetKey(void* key, int dup){
+void DictEntry::dictSetKey(void* key, int dup){
 	this->key = key;
 }
 
-void dictEntry::dictSetVal(void* value, int dup){
+void DictEntry::dictSetVal(void* value, int dup){
 	this->v.val = value;
 }
 
@@ -629,7 +629,7 @@ of the library. */
 /* ----------------------- Debugging ------------------------*/
 
 #define DICT_STATS_VECTLEN 50
-static void _dictPrintStatsHt(dictht *ht) {
+static void _dictPrintStatsHt(Dictht *ht) {
 	unsigned long i, slots = 0, chainlen, maxchainlen = 0;
 	unsigned long totchainlen = 0;
 	unsigned long clvector[DICT_STATS_VECTLEN];
@@ -641,7 +641,7 @@ static void _dictPrintStatsHt(dictht *ht) {
 
 	for (i = 0; i < DICT_STATS_VECTLEN; i++) clvector[i] = 0;
 	for (i = 0; i < ht->size; i++) {
-		dictEntry *he;
+		DictEntry *he;
 
 		if (ht->table[i] == NULL) {
 			clvector[0]++;
