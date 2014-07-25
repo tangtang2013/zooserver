@@ -4,7 +4,7 @@
 //#define _CRT_SECURE_NO_DEPRECATE
 
 int main(int argc, char** argv){
-	dict* d = new dict();
+	Dict* d = new Dict();
 	d->dictAdd(_strdup("hello"),_strdup("world"));
 	d->dictAdd(strdup("hello1"),strdup("world1"));
 	d->dictAdd(strdup("hello2"),strdup("world2"));
@@ -20,8 +20,8 @@ int main(int argc, char** argv){
 	d->dictAdd(strdup("hello12"),strdup("world12"));
 	printf("find : %s\n",d->dictFind("hello")->dictGetVal());
 
-	dictIterator* iterator = d->dictGetIterator();
-	dictEntry* entry = NULL;
+	DictIterator* iterator = d->dictGetIterator();
+	DictEntry* entry = NULL;
 	while(entry = iterator->dictNext()){
 		printf("iterator %s : %s\n",entry->dictGetKey(), entry->dictGetVal());
 	}
